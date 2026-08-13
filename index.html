@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Pago Móvil · Datos + Envío WhatsApp</title>
-    <!-- Font Awesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -22,7 +21,6 @@
             padding: 16px;
             margin: 0;
         }
-        /* Marco dinámico verde */
         .app-wrapper {
             width: 100%;
             max-width: 520px;
@@ -125,7 +123,6 @@
             color: #777;
             font-weight: 400;
         }
-        /* Estilo para el input de archivo */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -356,7 +353,6 @@
             border-top: 1px solid #333;
             margin: 8px 0 10px;
         }
-        /* Responsive */
         @media (max-width: 400px) {
             .app-wrapper { padding: 4px; border-radius: 28px; }
             .app-card { padding: 16px 12px 20px; border-radius: 24px; }
@@ -386,7 +382,6 @@
 <body>
 <div class="app-wrapper">
     <div class="app-card">
-        <!-- Imagen de encabezado -->
         <div class="header-image">
             <img src="https://i.pinimg.com/736x/6b/18/2a/6b182a1f50cc85246f0237807269b714.jpg" alt="Pago Móvil Banner" loading="lazy">
         </div>
@@ -426,7 +421,7 @@
             <div class="error-msg" id="telefonoError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
         </div>
 
-        <!-- Banco (opciones) -->
+        <!-- Banco -->
         <div class="form-group">
             <label><i class="fas fa-university"></i> Banco</label>
             <div class="banco-grid" id="bancoGroup">
@@ -442,14 +437,14 @@
             </div>
         </div>
 
-        <!-- Subir Captura / Imagen del pago -->
+        <!-- Subir Captura -->
         <div class="form-group">
             <label for="captureUpload"><i class="fas fa-image"></i> Captura de pago (imagen)</label>
             <div class="file-upload-wrapper">
-                <input type="file" id="captureUpload" accept="image/*" capture="environment">
+                <input type="file" id="captureUpload" accept="image/*">
                 <div class="file-upload-label" id="fileUploadLabel">
                     <i class="fas fa-cloud-upload-alt"></i>
-                    <span>Toca para seleccionar o tomar foto</span>
+                    <span>Seleccionar de la galería</span>
                     <span class="file-name" id="fileNameDisplay"></span>
                     <button type="button" class="file-remove" id="fileRemoveBtn" style="display:none;"><i class="fas fa-times-circle"></i></button>
                 </div>
@@ -460,7 +455,7 @@
             <div class="error-msg" id="fileError" style="display:none;"><i class="fas fa-exclamation-circle"></i> Selecciona una imagen válida</div>
         </div>
 
-        <!-- Datos fijos: teléfono y cédula con copiar -->
+        <!-- Datos fijos -->
         <div class="info-box">
             <div class="info-row">
                 <span class="info-label"><i class="fas fa-phone-alt"></i> Teléfono</span>
@@ -481,7 +476,7 @@
             </div>
         </div>
 
-        <!-- Botón enviar captura a WhatsApp -->
+        <!-- Botón enviar -->
         <button class="btn-primary" id="sendWhatsAppBtn">
             <i class="fab fa-whatsapp"></i> Enviar captura a WhatsApp
         </button>
@@ -490,7 +485,6 @@
 
 <script>
     (function() {
-        // DOM references
         const nombreInput = document.getElementById('nombre');
         const correoInput = document.getElementById('correo');
         const cedulaInput = document.getElementById('cedula');
@@ -510,7 +504,6 @@
         const copyCedulaMsg = document.getElementById('copyCedulaMsg');
         const mensajeCopiar = document.getElementById('mensajeCopiar');
 
-        // Elementos de archivo
         const fileInput = document.getElementById('captureUpload');
         const fileLabel = document.getElementById('fileUploadLabel');
         const fileNameDisplay = document.getElementById('fileNameDisplay');
@@ -526,7 +519,6 @@
 
         let validFields = { nombre: false, correo: false, cedula: false, telefono: false };
 
-        // --- Validaciones ---
         function validateNombre(val) {
             const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
             return regex.test(val.trim());
@@ -582,7 +574,6 @@
         cedulaInput.addEventListener('input', validateAll);
         telefonoInput.addEventListener('input', validateAll);
 
-        // --- Selección de banco ---
         bancoOptions.forEach(opt => {
             opt.addEventListener('click', function(e) {
                 const radio = this.querySelector('input[type="radio"]');
@@ -601,7 +592,6 @@
             if (parent) parent.classList.add('selected');
         }
 
-        // --- Funciones de copiar ---
         function copyTextToClipboard(text, feedbackElement, customMsg = null) {
             if (!navigator.clipboard) {
                 const textarea = document.createElement('textarea');
@@ -651,7 +641,7 @@
             copyTextToClipboard(CEDULA_FIJA, copyCedulaMsg, 'Cédula copiada');
         });
 
-        // --- Manejo del archivo (captura) ---
+        // Manejo del archivo
         fileInput.addEventListener('change', function(e) {
             const file = this.files[0];
             if (!file) {
@@ -659,7 +649,6 @@
                 return;
             }
 
-            // Validar que sea imagen
             if (!file.type.startsWith('image/')) {
                 fileError.style.display = 'flex';
                 fileError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Selecciona una imagen válida';
@@ -673,7 +662,6 @@
             fileLabel.classList.add('has-file');
             fileRemoveBtn.style.display = 'inline';
 
-            // Leer y mostrar preview
             const reader = new FileReader();
             reader.onload = function(ev) {
                 fileDataURL = ev.target.result;
@@ -700,13 +688,7 @@
             resetFileUpload();
         });
 
-        // También permitir hacer clic en el label para abrir el selector
-        fileLabel.addEventListener('click', function(e) {
-            if (e.target === fileRemoveBtn || fileRemoveBtn.contains(e.target)) return;
-            // Si ya hay un archivo, al hacer clic en el label se abre el selector para reemplazar
-        });
-
-        // --- Enviar a WhatsApp con imagen ---
+        // Enviar a WhatsApp con imagen adjunta
         document.getElementById('sendWhatsAppBtn').addEventListener('click', function() {
             const allValid = validateAll();
             if (!allValid) {
@@ -726,8 +708,7 @@
                 }
             }
 
-            // Construir mensaje base
-            let mensaje = 
+            const mensaje = 
 `📲 *DATOS DE PAGO MÓVIL*
 👤 Nombre: ${nombre}
 📧 Correo: ${correo}
@@ -737,31 +718,68 @@
 🔹 Teléfono pago: ${TELEFONO_FIJO}
 🔹 Cédula pago: ${CEDULA_FIJA}`;
 
-            if (selectedFile && fileDataURL) {
-                mensaje += `\n\n📸 *Captura de pago adjunta*`;
-            } else {
-                mensaje += `\n\n⚠️ *Sin captura de pago*`;
-            }
-
-            mensaje += `\n\n🔹 Enviado desde la app de Pago Móvil.`;
-
             const numeroWhatsApp = '584161379797';
             
-            // Si hay imagen, usar WhatsApp con imagen (solo funciona en móvil con la app)
-            // En web, WhatsApp Web no soporta enviar imágenes directamente por URL.
-            // Se envía el mensaje con texto y la imagen se adjunta manualmente.
+            // Si hay imagen seleccionada, usar el esquema de WhatsApp con imagen
             if (selectedFile && fileDataURL) {
-                // En móvil, se puede usar intent para compartir imagen, pero es complejo.
-                // Mejor opción: abrir WhatsApp con el texto y el usuario adjunta la imagen manualmente.
-                // Mostramos un mensaje indicando que la imagen debe adjuntarse.
-                const mensajeConImagen = mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.';
-                const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensajeConImagen)}`;
-                window.open(url, '_blank');
+                // Para enviar imagen y texto juntos en WhatsApp, usamos el formato:
+                // Primero enviamos la imagen, luego el texto como mensaje separado
+                // Pero WhatsApp Web no permite enviar imagen + texto en un solo enlace.
+                // La mejor solución: abrir WhatsApp con la imagen y el texto en el mensaje
+                // usando el formato de compartir de WhatsApp.
+                
+                // Convertir la imagen a un blob URL para compartir
+                try {
+                    // Crear un objeto URL para la imagen
+                    const blob = dataURLToBlob(fileDataURL);
+                    const fileObj = new File([blob], selectedFile.name, { type: selectedFile.type });
+                    
+                    // Usar la API de Web Share para compartir imagen + texto (funciona en móviles)
+                    if (navigator.share) {
+                        const shareData = {
+                            title: 'Pago Móvil',
+                            text: mensaje,
+                            files: [fileObj]
+                        };
+                        navigator.share(shareData).catch(err => {
+                            console.log('Error al compartir:', err);
+                            // Fallback a WhatsApp
+                            fallbackWhatsApp(mensaje);
+                        });
+                    } else {
+                        // Fallback: abrir WhatsApp con el texto y la imagen manual
+                        fallbackWhatsApp(mensaje);
+                    }
+                } catch (error) {
+                    console.error('Error al procesar la imagen:', error);
+                    fallbackWhatsApp(mensaje);
+                }
             } else {
+                // Sin imagen, solo texto
                 const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
                 window.open(url, '_blank');
             }
         });
+
+        // Función para convertir DataURL a Blob
+        function dataURLToBlob(dataURL) {
+            const parts = dataURL.split(',');
+            const mime = parts[0].match(/:(.*?);/)[1];
+            const bstr = atob(parts[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
+        // Fallback para WhatsApp
+        function fallbackWhatsApp(mensaje) {
+            const numeroWhatsApp = '584161379797';
+            const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
 
         setTimeout(validateAll, 50);
         mensajeCopiar.innerHTML = '💬 copiado, pegue en su banco';
