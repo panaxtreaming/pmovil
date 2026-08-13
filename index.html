@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Pago Móvil · Datos + Envío WhatsApp</title>
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+        }
+        /* Marco dinámico verde - se adapta al tamaño del dispositivo */
+        .app-wrapper {
+            width: 100%;
+            max-width: 520px;
+            padding: 6px;
+            background: linear-gradient(145deg, #25d366, #1a9e4a);
+            border-radius: 38px;
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.25), 0 20px 40px -8px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(37, 211, 102, 0.2), 0 20px 40px -8px rgba(0,0,0,0.8); }
+            50% { box-shadow: 0 0 45px rgba(37, 211, 102, 0.4), 0 20px 40px -8px rgba(0,0,0,0.8); }
+        }
+        .app-card {
+            width: 100%;
+            background: #1a1a1a;
+            border-radius: 32px;
+            padding: 24px 20px 28px;
+            transition: 0.2s;
+            border: 1px solid #2a2a2a;
+        }
+        /* Imagen de encabezado */
+        .header-image {
+            width: 100%;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            background: #111;
+            border: 1px solid #333;
+        }
+        .header-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            max-height: 180px;
+        }
+        h1 {
+            font-size: clamp(1.3rem, 5vw, 1.7rem);
+            font-weight: 600;
+            color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        h1 i {
+            color: #25d366;
+            font-size: clamp(1.4rem, 5vw, 1.9rem);
+        }
+        .subhead {
+            color: #aaa;
+            font-size: clamp(0.75rem, 2.5vw, 0.9rem);
+            margin-bottom: 20px;
+            border-left: 3px solid #25d366;
+            padding-left: 14px;
+            background: #222;
+            border-radius: 0 12px 12px 0;
+            line-height: 1.4;
+            padding: 8px 14px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+        label i {
+            color: #25d366;
+            width: 18px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: clamp(0.9rem, 2.8vw, 1rem);
+            border: 1.5px solid #444;
+            border-radius: 16px;
+            background: #2a2a2a;
+            transition: 0.2s;
+            outline: none;
+            color: #f0f0f0;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input:focus, select:focus {
+            border-color: #25d366;
+            box-shadow: 0 0 0 4px rgba(37, 211, 102, 0.12);
+        }
+        input::placeholder {
+            color: #777;
+            font-weight: 400;
+        }
+        .banco-grid {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 4px 0 2px;
+        }
+        .banco-option {
+            flex: 1 1 auto;
+            min-width: 80px;
+            background: #2a2a2a;
+            border: 1.5px solid #444;
+            border-radius: 30px;
+            padding: 8px 12px;
+            font-weight: 500;
+            font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+            color: #ccc;
+            cursor: pointer;
+            transition: 0.15s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .banco-option i {
+            color: #25d366;
+            font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+        }
+        .banco-option.selected {
+            background: #25d366;
+            border-color: #25d366;
+            color: #0a0a0a;
+        }
+        .banco-option.selected i {
+            color: #0a0a0a;
+        }
+        .banco-option input {
+            display: none;
+        }
+        .info-box {
+            background: #222;
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin: 14px 0 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border: 1px solid #333;
+        }
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+        }
+        .info-label {
+            font-weight: 500;
+            color: #ccc;
+            font-size: clamp(0.75rem, 2.3vw, 0.85rem);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .info-value {
+            font-weight: 600;
+            color: #f0f0f0;
+            background: #2a2a2a;
+            padding: 4px 12px 4px 10px;
+            border-radius: 40px;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border: 1px solid #444;
+            flex-wrap: wrap;
+        }
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: #25d366;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            cursor: pointer;
+            padding: 3px 5px;
+            border-radius: 30px;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .copy-btn:hover {
+            background: #333;
+            transform: scale(1.02);
+        }
+        .copy-btn i {
+            font-size: clamp(1rem, 2.8vw, 1.2rem);
+        }
+        .copy-feedback {
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            color: #25d366;
+            margin-left: 2px;
+            font-weight: 500;
+        }
+        .btn-primary {
+            width: 100%;
+            background: #25d366;
+            color: #0a0a0a;
+            border: none;
+            padding: 14px 16px;
+            font-size: clamp(0.95rem, 3vw, 1.1rem);
+            font-weight: 700;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 8px 18px rgba(37, 211, 102, 0.2);
+        }
+        .btn-primary i {
+            font-size: clamp(1.1rem, 3.2vw, 1.3rem);
+        }
+        .btn-primary:hover {
+            background: #2bdf6e;
+            transform: scale(0.98);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+        .error-msg {
+            color: #ff6b6b;
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            margin-top: 3px;
+            padding-left: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 18px;
+        }
+        .error-msg i {
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+        .separator {
+            border-top: 1px solid #333;
+            margin: 8px 0 10px;
+        }
+        /* Responsive extra small */
+        @media (max-width: 400px) {
+            .app-wrapper { padding: 4px; border-radius: 28px; }
+            .app-card { padding: 16px 12px 20px; border-radius: 24px; }
+            .info-value { padding: 4px 8px; }
+            .banco-option { padding: 6px 8px; min-width: 60px; }
+        }
+        @media (min-width: 768px) {
+            .app-wrapper { padding: 8px; border-radius: 44px; }
+            .app-card { padding: 32px 28px 36px; }
+        }
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb { background: #25d366; border-radius: 10px; }
+        ::-webkit-input-placeholder { color: #777; }
+        :-moz-placeholder { color: #777; }
+        ::-moz-placeholder { color: #777; }
+        :-ms-input-placeholder { color: #777; }
+        #mensajeCopiar {
+            color: #aaa;
+            font-size: clamp(0.7rem, 2.2vw, 0.8rem);
+        }
+        .info-box .fa-info-circle {
+            color: #25d366 !important;
+        }
+    </style>
+</head>
+<body>
+<div class="app-wrapper">
+    <div class="app-card">
+        <!-- Imagen de encabezado -->
+        <div class="header-image">
+            <img src="https://i.pinimg.com/736x/6b/18/2a/6b182a1f50cc85246f0237807269b714.jpg" alt="Pago Móvil Banner" loading="lazy">
+        </div>
+
+        <h1>
+            <i class="fas fa-mobile-alt"></i> Pago Móvil
+        </h1>
+        <div class="subhead">
+            <i class="fas fa-edit" style="margin-right: 6px;"></i> Completa tus datos y envía captura
+        </div>
+
+        <!-- Nombre y Apellido -->
+        <div class="form-group">
+            <label for="nombre"><i class="fas fa-user"></i> Nombre y Apellido</label>
+            <input type="text" id="nombre" placeholder="Ej: María Pérez" autocomplete="name">
+            <div class="error-msg" id="nombreError"><i class="fas fa-exclamation-circle"></i> Solo letras y espacios</div>
+        </div>
+
+        <!-- Correo -->
+        <div class="form-group">
+            <label for="correo"><i class="fas fa-envelope"></i> Correo electrónico</label>
+            <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email">
+            <div class="error-msg" id="correoError"><i class="fas fa-exclamation-circle"></i> Formato de correo inválido</div>
+        </div>
+
+        <!-- Cédula -->
+        <div class="form-group">
+            <label for="cedula"><i class="fas fa-id-card"></i> Cédula de Identidad</label>
+            <input type="text" id="cedula" placeholder="Solo números" inputmode="numeric">
+            <div class="error-msg" id="cedulaError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+            <label for="telefono"><i class="fas fa-phone"></i> Número de teléfono</label>
+            <input type="tel" id="telefono" placeholder="0412 075 4787" inputmode="numeric">
+            <div class="error-msg" id="telefonoError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
+        </div>
+
+        <!-- Banco (opciones) -->
+        <div class="form-group">
+            <label><i class="fas fa-university"></i> Banco</label>
+            <div class="banco-grid" id="bancoGroup">
+                <label class="banco-option" data-banco="mercantil">
+                    <input type="radio" name="banco" value="Mercantil" checked> <i class="fas fa-building"></i> Mercantil
+                </label>
+                <label class="banco-option" data-banco="venezuela">
+                    <input type="radio" name="banco" value="Venezuela"> <i class="fas fa-landmark"></i> Venezuela
+                </label>
+                <label class="banco-option" data-banco="bancamiga">
+                    <input type="radio" name="banco" value="Bancamiga"> <i class="fas fa-piggy-bank"></i> Bancamiga
+                </label>
+            </div>
+        </div>
+
+        <!-- Datos fijos: teléfono y cédula con copiar -->
+        <div class="info-box">
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-phone-alt"></i> Teléfono</span>
+                <span class="info-value" id="displayTelefono">04120754787 
+                    <button class="copy-btn" id="copyTelefono" aria-label="Copiar teléfono"><i class="fas fa-copy"></i> <span class="copy-feedback" id="copyTelefonoMsg"></span></button>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-id-card"></i> Cédula</span>
+                <span class="info-value" id="displayCedula">13967475 
+                    <button class="copy-btn" id="copyCedula" aria-label="Copiar cédula"><i class="fas fa-copy"></i> <span class="copy-feedback" id="copyCedulaMsg"></span></button>
+                </span>
+            </div>
+            <div class="separator"></div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <i class="fas fa-info-circle" style="color:#25d366;"></i> 
+                <span id="mensajeCopiar" style="font-weight: 500;">💬 copiado, pegue en su banco</span>
+            </div>
+        </div>
+
+        <!-- Botón enviar captura a WhatsApp -->
+        <button class="btn-primary" id="sendWhatsAppBtn">
+            <i class="fab fa-whatsapp"></i> Enviar captura a WhatsApp
+        </button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // DOM references
+        const nombreInput = document.getElementById('nombre');
+        const correoInput = document.getElementById('correo');
+        const cedulaInput = document.getElementById('cedula');
+        const telefonoInput = document.getElementById('telefono');
+        
+        const nombreError = document.getElementById('nombreError');
+        const correoError = document.getElementById('correoError');
+        const cedulaError = document.getElementById('cedulaError');
+        const telefonoError = document.getElementById('telefonoError');
+
+        const bancoRadios = document.querySelectorAll('input[name="banco"]');
+        const bancoOptions = document.querySelectorAll('.banco-option');
+
+        const copyTelefonoBtn = document.getElementById('copyTelefono');
+        const copyCedulaBtn = document.getElementById('copyCedula');
+        const copyTelefonoMsg = document.getElementById('copyTelefonoMsg');
+        const copyCedulaMsg = document.getElementById('copyCedulaMsg');
+        const mensajeCopiar = document.getElementById('mensajeCopiar');
+
+        const TELEFONO_FIJO = '04120754787';
+        const CEDULA_FIJA = '13967475';
+
+        let validFields = { nombre: false, correo: false, cedula: false, telefono: false };
+
+        function validateNombre(val) {
+            const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
+            return regex.test(val.trim());
+        }
+
+        function validateCorreo(val) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(val.trim());
+        }
+
+        function validateSoloNumeros(val) {
+            return /^\d+$/.test(val.trim());
+        }
+
+        function setFieldError(errorElement, isValid, customMsg = null) {
+            if (isValid) {
+                errorElement.style.display = 'none';
+                errorElement.textContent = '';
+            } else {
+                errorElement.style.display = 'flex';
+                if (customMsg) {
+                    errorElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${customMsg}`;
+                }
+            }
+        }
+
+        function validateAll() {
+            const nombreVal = nombreInput.value;
+            const correoVal = correoInput.value;
+            const cedulaVal = cedulaInput.value;
+            const telefonoVal = telefonoInput.value;
+
+            const isNombreOk = validateNombre(nombreVal);
+            const isCorreoOk = validateCorreo(correoVal);
+            const isCedulaOk = validateSoloNumeros(cedulaVal);
+            const isTelefonoOk = validateSoloNumeros(telefonoVal);
+
+            validFields.nombre = isNombreOk;
+            validFields.correo = isCorreoOk;
+            validFields.cedula = isCedulaOk;
+            validFields.telefono = isTelefonoOk;
+
+            setFieldError(nombreError, isNombreOk, 'Solo letras y espacios');
+            setFieldError(correoError, isCorreoOk, 'Formato de correo inválido');
+            setFieldError(cedulaError, isCedulaOk, 'Solo números');
+            setFieldError(telefonoError, isTelefonoOk, 'Solo números');
+
+            return isNombreOk && isCorreoOk && isCedulaOk && isTelefonoOk;
+        }
+
+        nombreInput.addEventListener('input', validateAll);
+        correoInput.addEventListener('input', validateAll);
+        cedulaInput.addEventListener('input', validateAll);
+        telefonoInput.addEventListener('input', validateAll);
+
+        bancoOptions.forEach(opt => {
+            opt.addEventListener('click', function(e) {
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) {
+                    radio.checked = true;
+                    bancoOptions.forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                }
+            });
+        });
+
+        const firstRadio = document.querySelector('input[name="banco"][value="Mercantil"]');
+        if (firstRadio) {
+            firstRadio.checked = true;
+            const parent = firstRadio.closest('.banco-option');
+            if (parent) parent.classList.add('selected');
+        }
+
+        function copyTextToClipboard(text, feedbackElement, customMsg = null) {
+            if (!navigator.clipboard) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showCopyFeedback(feedbackElement, customMsg);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => {
+                showCopyFeedback(feedbackElement, customMsg);
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showCopyFeedback(feedbackElement, customMsg);
+            });
+        }
+
+        function showCopyFeedback(element, customMsg = null) {
+            if (!element) return;
+            const msg = customMsg || '¡Copiado!';
+            element.textContent = msg;
+            mensajeCopiar.innerHTML = `✅ ${msg} · pegue en su banco`;
+            mensajeCopiar.style.opacity = '1';
+            mensajeCopiar.style.color = '#25d366';
+            setTimeout(() => {
+                element.textContent = '';
+                mensajeCopiar.innerHTML = '💬 copiado, pegue en su banco';
+                mensajeCopiar.style.opacity = '0.7';
+                mensajeCopiar.style.color = '#aaa';
+            }, 2000);
+        }
+
+        copyTelefonoBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            copyTextToClipboard(TELEFONO_FIJO, copyTelefonoMsg, 'Teléfono copiado');
+        });
+
+        copyCedulaBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            copyTextToClipboard(CEDULA_FIJA, copyCedulaMsg, 'Cédula copiada');
+        });
+
+        document.getElementById('sendWhatsAppBtn').addEventListener('click', function() {
+            const allValid = validateAll();
+            if (!allValid) {
+                alert('⚠️ Por favor, completa todos los campos correctamente antes de enviar.');
+                return;
+            }
+
+            const nombre = nombreInput.value.trim();
+            const correo = correoInput.value.trim();
+            const cedula = cedulaInput.value.trim();
+            const telefono = telefonoInput.value.trim();
+            let bancoSeleccionado = 'Mercantil';
+            for (let radio of bancoRadios) {
+                if (radio.checked) {
+                    bancoSeleccionado = radio.value;
+                    break;
+                }
+            }
+
+            const mensaje = 
+`📲 *DATOS DE PAGO MÓVIL*
+👤 Nombre: ${nombre}
+📧 Correo: ${correo}
+🆔 Cédula: ${cedula}
+📞 Teléfono: ${telefono}
+🏦 Banco: ${bancoSeleccionado}
+🔹 Teléfono pago: ${TELEFONO_FIJO}
+🔹 Cédula pago: ${CEDULA_FIJA}
+
+🔹 Enviado desde la app de Pago Móvil.`;
+
+            const numeroWhatsApp = '584161379797';
+            const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        });
+
+        setTimeout(validateAll, 50);
+        mensajeCopiar.innerHTML = '💬 copiado, pegue en su banco';
+        mensajeCopiar.style.opacity = '0.7';
+        mensajeCopiar.style.color = '#aaa';
+    })();
+</script>
+</body>
+</html>
