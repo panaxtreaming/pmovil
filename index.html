@@ -22,7 +22,7 @@
             padding: 16px;
             margin: 0;
         }
-        /* Marco dinámico verde - se adapta al tamaño del dispositivo */
+        /* Marco dinámico verde */
         .app-wrapper {
             width: 100%;
             max-width: 520px;
@@ -45,7 +45,6 @@
             transition: 0.2s;
             border: 1px solid #2a2a2a;
         }
-        /* Imagen de encabezado */
         .header-image {
             width: 100%;
             border-radius: 20px;
@@ -125,6 +124,88 @@
         input::placeholder {
             color: #777;
             font-weight: 400;
+        }
+        /* Estilo para el input de archivo */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px 16px;
+            background: #2a2a2a;
+            border: 2px dashed #444;
+            border-radius: 16px;
+            color: #aaa;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            transition: 0.2s;
+            cursor: pointer;
+            min-height: 56px;
+            text-align: center;
+        }
+        .file-upload-label i {
+            color: #25d366;
+            font-size: 1.3rem;
+        }
+        .file-upload-label.has-file {
+            border-color: #25d366;
+            background: #1f2a1f;
+            color: #f0f0f0;
+        }
+        .file-upload-label .file-name {
+            color: #25d366;
+            font-weight: 500;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .file-preview {
+            margin-top: 10px;
+            display: none;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #444;
+            max-height: 180px;
+            background: #111;
+        }
+        .file-preview img {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain;
+            display: block;
+        }
+        .file-preview.show {
+            display: block;
+        }
+        .file-remove {
+            background: transparent;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            transition: 0.15s;
+            margin-left: 8px;
+        }
+        .file-remove:hover {
+            background: #331a1a;
         }
         .banco-grid {
             display: flex;
@@ -275,7 +356,7 @@
             border-top: 1px solid #333;
             margin: 8px 0 10px;
         }
-        /* Responsive extra small */
+        /* Responsive */
         @media (max-width: 400px) {
             .app-wrapper { padding: 4px; border-radius: 28px; }
             .app-card { padding: 16px 12px 20px; border-radius: 24px; }
@@ -286,7 +367,6 @@
             .app-wrapper { padding: 8px; border-radius: 44px; }
             .app-card { padding: 32px 28px 36px; }
         }
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; }
         ::-webkit-scrollbar-thumb { background: #25d366; border-radius: 10px; }
@@ -362,6 +442,24 @@
             </div>
         </div>
 
+        <!-- Subir Captura / Imagen del pago -->
+        <div class="form-group">
+            <label for="captureUpload"><i class="fas fa-image"></i> Captura de pago (imagen)</label>
+            <div class="file-upload-wrapper">
+                <input type="file" id="captureUpload" accept="image/*" capture="environment">
+                <div class="file-upload-label" id="fileUploadLabel">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>Toca para seleccionar o tomar foto</span>
+                    <span class="file-name" id="fileNameDisplay"></span>
+                    <button type="button" class="file-remove" id="fileRemoveBtn" style="display:none;"><i class="fas fa-times-circle"></i></button>
+                </div>
+            </div>
+            <div class="file-preview" id="filePreview">
+                <img id="previewImage" src="#" alt="Vista previa del capture">
+            </div>
+            <div class="error-msg" id="fileError" style="display:none;"><i class="fas fa-exclamation-circle"></i> Selecciona una imagen válida</div>
+        </div>
+
         <!-- Datos fijos: teléfono y cédula con copiar -->
         <div class="info-box">
             <div class="info-row">
@@ -412,11 +510,23 @@
         const copyCedulaMsg = document.getElementById('copyCedulaMsg');
         const mensajeCopiar = document.getElementById('mensajeCopiar');
 
+        // Elementos de archivo
+        const fileInput = document.getElementById('captureUpload');
+        const fileLabel = document.getElementById('fileUploadLabel');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const fileRemoveBtn = document.getElementById('fileRemoveBtn');
+        const filePreview = document.getElementById('filePreview');
+        const previewImage = document.getElementById('previewImage');
+        const fileError = document.getElementById('fileError');
+
         const TELEFONO_FIJO = '04120754787';
         const CEDULA_FIJA = '13967475';
+        let selectedFile = null;
+        let fileDataURL = null;
 
         let validFields = { nombre: false, correo: false, cedula: false, telefono: false };
 
+        // --- Validaciones ---
         function validateNombre(val) {
             const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
             return regex.test(val.trim());
@@ -472,6 +582,7 @@
         cedulaInput.addEventListener('input', validateAll);
         telefonoInput.addEventListener('input', validateAll);
 
+        // --- Selección de banco ---
         bancoOptions.forEach(opt => {
             opt.addEventListener('click', function(e) {
                 const radio = this.querySelector('input[type="radio"]');
@@ -490,6 +601,7 @@
             if (parent) parent.classList.add('selected');
         }
 
+        // --- Funciones de copiar ---
         function copyTextToClipboard(text, feedbackElement, customMsg = null) {
             if (!navigator.clipboard) {
                 const textarea = document.createElement('textarea');
@@ -539,6 +651,62 @@
             copyTextToClipboard(CEDULA_FIJA, copyCedulaMsg, 'Cédula copiada');
         });
 
+        // --- Manejo del archivo (captura) ---
+        fileInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (!file) {
+                resetFileUpload();
+                return;
+            }
+
+            // Validar que sea imagen
+            if (!file.type.startsWith('image/')) {
+                fileError.style.display = 'flex';
+                fileError.innerHTML = '<i class="fas fa-exclamation-circle"></i> Selecciona una imagen válida';
+                resetFileUpload();
+                return;
+            }
+
+            fileError.style.display = 'none';
+            selectedFile = file;
+            fileNameDisplay.textContent = file.name;
+            fileLabel.classList.add('has-file');
+            fileRemoveBtn.style.display = 'inline';
+
+            // Leer y mostrar preview
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                fileDataURL = ev.target.result;
+                previewImage.src = fileDataURL;
+                filePreview.classList.add('show');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function resetFileUpload() {
+            selectedFile = null;
+            fileDataURL = null;
+            fileInput.value = '';
+            fileNameDisplay.textContent = '';
+            fileLabel.classList.remove('has-file');
+            fileRemoveBtn.style.display = 'none';
+            filePreview.classList.remove('show');
+            previewImage.src = '#';
+            fileError.style.display = 'none';
+        }
+
+        fileRemoveBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            resetFileUpload();
+        });
+
+        // También permitir hacer clic en el label para abrir el selector
+        fileLabel.addEventListener('click', function(e) {
+            if (e.target === fileRemoveBtn || fileRemoveBtn.contains(e.target)) return;
+            // Si ya hay un archivo, al hacer clic en el label se abre el selector para reemplazar
+        });
+
+        // --- Enviar a WhatsApp con imagen ---
         document.getElementById('sendWhatsAppBtn').addEventListener('click', function() {
             const allValid = validateAll();
             if (!allValid) {
@@ -558,7 +726,8 @@
                 }
             }
 
-            const mensaje = 
+            // Construir mensaje base
+            let mensaje = 
 `📲 *DATOS DE PAGO MÓVIL*
 👤 Nombre: ${nombre}
 📧 Correo: ${correo}
@@ -566,13 +735,32 @@
 📞 Teléfono: ${telefono}
 🏦 Banco: ${bancoSeleccionado}
 🔹 Teléfono pago: ${TELEFONO_FIJO}
-🔹 Cédula pago: ${CEDULA_FIJA}
+🔹 Cédula pago: ${CEDULA_FIJA}`;
 
-🔹 Enviado desde la app de Pago Móvil.`;
+            if (selectedFile && fileDataURL) {
+                mensaje += `\n\n📸 *Captura de pago adjunta*`;
+            } else {
+                mensaje += `\n\n⚠️ *Sin captura de pago*`;
+            }
+
+            mensaje += `\n\n🔹 Enviado desde la app de Pago Móvil.`;
 
             const numeroWhatsApp = '584161379797';
-            const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
+            
+            // Si hay imagen, usar WhatsApp con imagen (solo funciona en móvil con la app)
+            // En web, WhatsApp Web no soporta enviar imágenes directamente por URL.
+            // Se envía el mensaje con texto y la imagen se adjunta manualmente.
+            if (selectedFile && fileDataURL) {
+                // En móvil, se puede usar intent para compartir imagen, pero es complejo.
+                // Mejor opción: abrir WhatsApp con el texto y el usuario adjunta la imagen manualmente.
+                // Mostramos un mensaje indicando que la imagen debe adjuntarse.
+                const mensajeConImagen = mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.';
+                const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensajeConImagen)}`;
+                window.open(url, '_blank');
+            } else {
+                const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
+                window.open(url, '_blank');
+            }
         });
 
         setTimeout(validateAll, 50);
