@@ -353,11 +353,86 @@
             border-top: 1px solid #333;
             margin: 8px 0 10px;
         }
+        .info-title {
+            color: #25d366;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            text-align: center;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .info-subtitle {
+            color: #aaa;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            text-align: center;
+            margin-bottom: 6px;
+        }
+        .banco-selector-title {
+            color: #f0f0f0;
+            font-weight: 500;
+            font-size: clamp(0.8rem, 2.3vw, 0.9rem);
+            text-align: center;
+            margin-bottom: 8px;
+            background: #2a2a2a;
+            padding: 6px 12px;
+            border-radius: 30px;
+            border: 1px solid #333;
+        }
+        .banco-selector-title i {
+            color: #25d366;
+            margin-right: 6px;
+        }
+        /* Botones de banco elegibles - estilo mejorado */
+        .banco-selector-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 4px 0 10px;
+        }
+        .banco-selector-buttons .banco-btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 10px 14px;
+            border: 2px solid #444;
+            border-radius: 30px;
+            background: #2a2a2a;
+            color: #aaa;
+            font-weight: 600;
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .banco-selector-buttons .banco-btn i {
+            color: #25d366;
+            font-size: clamp(0.8rem, 2vw, 0.95rem);
+        }
+        .banco-selector-buttons .banco-btn.selected {
+            background: #25d366;
+            border-color: #25d366;
+            color: #0a0a0a;
+        }
+        .banco-selector-buttons .banco-btn.selected i {
+            color: #0a0a0a;
+        }
+        .banco-selector-buttons .banco-btn:hover {
+            border-color: #25d366;
+            transform: scale(1.02);
+        }
+        .banco-selector-buttons .banco-btn:active {
+            transform: scale(0.96);
+        }
         @media (max-width: 400px) {
             .app-wrapper { padding: 4px; border-radius: 28px; }
             .app-card { padding: 16px 12px 20px; border-radius: 24px; }
             .info-value { padding: 4px 8px; }
             .banco-option { padding: 6px 8px; min-width: 60px; }
+            .banco-selector-buttons .banco-btn { min-width: 60px; padding: 8px 10px; }
         }
         @media (min-width: 768px) {
             .app-wrapper { padding: 8px; border-radius: 44px; }
@@ -377,6 +452,51 @@
         .info-box .fa-info-circle {
             color: #25d366 !important;
         }
+        .client-data-section {
+            background: #1f2a1f;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 10px 0 4px;
+            border: 1px solid #2a3a2a;
+        }
+        .client-data-section .section-title {
+            color: #25d366;
+            font-weight: 600;
+            font-size: clamp(0.8rem, 2.3vw, 0.9rem);
+            margin-bottom: 10px;
+            text-align: center;
+            border-bottom: 1px solid #2a3a2a;
+            padding-bottom: 8px;
+        }
+        .bancos-display {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 6px 0 10px;
+            padding: 6px;
+            background: #111;
+            border-radius: 30px;
+            border: 1px solid #2a3a2a;
+        }
+        .bancos-display span {
+            color: #aaa;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: 500;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+        }
+        .bancos-display span i {
+            color: #25d366;
+            margin-right: 4px;
+        }
+        .bancos-display span.active-banco {
+            color: #25d366;
+            border-color: #25d366;
+            background: #1f2a1f;
+        }
     </style>
 </head>
 <body>
@@ -393,53 +513,53 @@
             <i class="fas fa-edit" style="margin-right: 6px;"></i> Completa tus datos y envía captura
         </div>
 
-        <!-- Nombre y Apellido -->
-        <div class="form-group">
-            <label for="nombre"><i class="fas fa-user"></i> Nombre y Apellido</label>
-            <input type="text" id="nombre" placeholder="Ej: María Pérez" autocomplete="name">
-            <div class="error-msg" id="nombreError"><i class="fas fa-exclamation-circle"></i> Solo letras y espacios</div>
-        </div>
+        <!-- PRIMERO: Datos de Pago Móvil (fijos) - Copiar y pegar -->
+        <div class="info-box">
+            <div class="info-title">
+                <i class="fas fa-copy" style="margin-right: 8px;"></i>COPIA Y PEGA EN TU BANCO LOS DATOS PARA HACER TU PAGO MÓVIL
+            </div>
+            
+            <!-- Selector de Banco - SOLO ELIGE A DONDE PAGARAS -->
+            <div class="banco-selector-title">
+                <i class="fas fa-hand-pointer"></i> ELIGE A DONDE PAGARÁS
+            </div>
+            
+            <!-- Botones de banco elegibles -->
+            <div class="banco-selector-buttons" id="bancoSelectorButtons">
+                <button class="banco-btn selected" data-banco="Mercantil">
+                    <i class="fas fa-building"></i> Mercantil
+                </button>
+                <button class="banco-btn" data-banco="Venezuela">
+                    <i class="fas fa-landmark"></i> Venezuela
+                </button>
+                <button class="banco-btn" data-banco="Bancamiga">
+                    <i class="fas fa-piggy-bank"></i> Bancamiga
+                </button>
+            </div>
 
-        <!-- Correo -->
-        <div class="form-group">
-            <label for="correo"><i class="fas fa-envelope"></i> Correo electrónico</label>
-            <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email">
-            <div class="error-msg" id="correoError"><i class="fas fa-exclamation-circle"></i> Formato de correo inválido</div>
-        </div>
-
-        <!-- Cédula -->
-        <div class="form-group">
-            <label for="cedula"><i class="fas fa-id-card"></i> Cédula de Identidad</label>
-            <input type="text" id="cedula" placeholder="Solo números" inputmode="numeric">
-            <div class="error-msg" id="cedulaError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
-        </div>
-
-        <!-- Teléfono -->
-        <div class="form-group">
-            <label for="telefono"><i class="fas fa-phone"></i> Número de teléfono</label>
-            <input type="tel" id="telefono" placeholder="0412 075 4787" inputmode="numeric">
-            <div class="error-msg" id="telefonoError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
-        </div>
-
-        <!-- Banco -->
-        <div class="form-group">
-            <label><i class="fas fa-university"></i> Banco</label>
-            <div class="banco-grid" id="bancoGroup">
-                <label class="banco-option" data-banco="mercantil">
-                    <input type="radio" name="banco" value="Mercantil" checked> <i class="fas fa-building"></i> Mercantil
-                </label>
-                <label class="banco-option" data-banco="venezuela">
-                    <input type="radio" name="banco" value="Venezuela"> <i class="fas fa-landmark"></i> Venezuela
-                </label>
-                <label class="banco-option" data-banco="bancamiga">
-                    <input type="radio" name="banco" value="Bancamiga"> <i class="fas fa-piggy-bank"></i> Bancamiga
-                </label>
+            <div class="separator"></div>
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-phone-alt"></i> Teléfono</span>
+                <span class="info-value" id="displayTelefono">04120754787 
+                    <button class="copy-btn" id="copyTelefono" aria-label="Copiar teléfono"><i class="fas fa-copy"></i> <span class="copy-feedback" id="copyTelefonoMsg"></span></button>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label"><i class="fas fa-id-card"></i> Cédula</span>
+                <span class="info-value" id="displayCedula">13967475 
+                    <button class="copy-btn" id="copyCedula" aria-label="Copiar cédula"><i class="fas fa-copy"></i> <span class="copy-feedback" id="copyCedulaMsg"></span></button>
+                </span>
+            </div>
+            <div class="separator"></div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+                <i class="fas fa-info-circle" style="color:#25d366;"></i> 
+                <span id="mensajeCopiar" style="font-weight: 500; color: #aaa;">💬 copiado, pegue en su banco</span>
             </div>
         </div>
 
-        <!-- Subir Captura -->
+        <!-- SEGUNDO: Adjuntar imagen -->
         <div class="form-group">
-            <label for="captureUpload"><i class="fas fa-image"></i> Captura de pago (imagen)</label>
+            <label for="captureUpload"><i class="fas fa-image"></i> Adjuntar captura de pago</label>
             <div class="file-upload-wrapper">
                 <input type="file" id="captureUpload" accept="image/*">
                 <div class="file-upload-label" id="fileUploadLabel">
@@ -455,24 +575,54 @@
             <div class="error-msg" id="fileError" style="display:none;"><i class="fas fa-exclamation-circle"></i> Selecciona una imagen válida</div>
         </div>
 
-        <!-- Datos fijos -->
-        <div class="info-box">
-            <div class="info-row">
-                <span class="info-label"><i class="fas fa-phone-alt"></i> Teléfono</span>
-                <span class="info-value" id="displayTelefono">04120754787 
-                    <button class="copy-btn" id="copyTelefono" aria-label="Copiar teléfono"><i class="fas fa-copy"></i> <span class="copy-feedback" id="copyTelefonoMsg"></span></button>
-                </span>
+        <!-- TERCERO: Datos del cliente -->
+        <div class="client-data-section">
+            <div class="section-title">
+                <i class="fas fa-user-edit" style="margin-right: 8px;"></i>COMPLETA TUS DATOS PARA PROCESAR TU SOLICITUD
             </div>
-            <div class="info-row">
-                <span class="info-label"><i class="fas fa-id-card"></i> Cédula</span>
-                <span class="info-value" id="displayCedula">13967475 
-                    <button class="copy-btn" id="copyCedula" aria-label="Copiar cédula"><i class="fas fa-copy"></i> <span class="copy-feedback" id="copyCedulaMsg"></span></button>
-                </span>
+            
+            <!-- Nombre y Apellido -->
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="nombre"><i class="fas fa-user"></i> Nombre y Apellido</label>
+                <input type="text" id="nombre" placeholder="Ej: María Pérez" autocomplete="name">
+                <div class="error-msg" id="nombreError"><i class="fas fa-exclamation-circle"></i> Solo letras y espacios</div>
             </div>
-            <div class="separator"></div>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <i class="fas fa-info-circle" style="color:#25d366;"></i> 
-                <span id="mensajeCopiar" style="font-weight: 500;">💬 copiado, pegue en su banco</span>
+
+            <!-- Cédula -->
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="cedula"><i class="fas fa-id-card"></i> Cédula de Identidad</label>
+                <input type="text" id="cedula" placeholder="Solo números" inputmode="numeric">
+                <div class="error-msg" id="cedulaError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group" style="margin-bottom: 10px;">
+                <label for="telefono"><i class="fas fa-phone"></i> Número de teléfono</label>
+                <input type="tel" id="telefono" placeholder="0412 075 4787" inputmode="numeric">
+                <div class="error-msg" id="telefonoError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
+            </div>
+
+            <!-- Correo -->
+            <div class="form-group" style="margin-bottom: 6px;">
+                <label for="correo"><i class="fas fa-envelope"></i> Correo electrónico</label>
+                <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email">
+                <div class="error-msg" id="correoError"><i class="fas fa-exclamation-circle"></i> Formato de correo inválido</div>
+            </div>
+
+            <!-- Banco (selección) - oculto pero sincronizado con los botones -->
+            <div class="form-group" style="margin-bottom: 0; display: none;">
+                <label><i class="fas fa-university"></i> Selecciona tu banco</label>
+                <div class="banco-grid" id="bancoGroup">
+                    <label class="banco-option" data-banco="mercantil">
+                        <input type="radio" name="banco" value="Mercantil" checked> <i class="fas fa-building"></i> Mercantil
+                    </label>
+                    <label class="banco-option" data-banco="venezuela">
+                        <input type="radio" name="banco" value="Venezuela"> <i class="fas fa-landmark"></i> Venezuela
+                    </label>
+                    <label class="banco-option" data-banco="bancamiga">
+                        <input type="radio" name="banco" value="Bancamiga"> <i class="fas fa-piggy-bank"></i> Bancamiga
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -495,6 +645,9 @@
         const cedulaError = document.getElementById('cedulaError');
         const telefonoError = document.getElementById('telefonoError');
 
+        // Botones de banco elegibles
+        const bancoButtons = document.querySelectorAll('.banco-btn');
+        // Radio buttons ocultos para sincronizar
         const bancoRadios = document.querySelectorAll('input[name="banco"]');
         const bancoOptions = document.querySelectorAll('.banco-option');
 
@@ -518,7 +671,35 @@
         let fileDataURL = null;
 
         let validFields = { nombre: false, correo: false, cedula: false, telefono: false };
+        let bancoSeleccionado = 'Mercantil';
 
+        // --- Sincronizar botones de banco con radios ocultos ---
+        bancoButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const banco = this.dataset.banco;
+                bancoSeleccionado = banco;
+                
+                // Actualizar estilo de botones
+                bancoButtons.forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Sincronizar radio buttons ocultos
+                bancoRadios.forEach(radio => {
+                    if (radio.value === banco) {
+                        radio.checked = true;
+                    }
+                });
+                bancoOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                    const radio = opt.querySelector('input[type="radio"]');
+                    if (radio && radio.value === banco) {
+                        opt.classList.add('selected');
+                    }
+                });
+            });
+        });
+
+        // --- Validaciones ---
         function validateNombre(val) {
             const regex = /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/;
             return regex.test(val.trim());
@@ -574,6 +755,7 @@
         cedulaInput.addEventListener('input', validateAll);
         telefonoInput.addEventListener('input', validateAll);
 
+        // --- Sincronizar banco con radios existentes ---
         bancoOptions.forEach(opt => {
             opt.addEventListener('click', function(e) {
                 const radio = this.querySelector('input[type="radio"]');
@@ -581,10 +763,17 @@
                     radio.checked = true;
                     bancoOptions.forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
+                    // Sincronizar botones
+                    const valor = radio.value;
+                    bancoButtons.forEach(btn => {
+                        btn.classList.toggle('selected', btn.dataset.banco === valor);
+                    });
+                    bancoSeleccionado = valor;
                 }
             });
         });
 
+        // Inicializar: marcar Mercantil
         const firstRadio = document.querySelector('input[name="banco"][value="Mercantil"]');
         if (firstRadio) {
             firstRadio.checked = true;
@@ -592,6 +781,7 @@
             if (parent) parent.classList.add('selected');
         }
 
+        // --- Funciones de copiar ---
         function copyTextToClipboard(text, feedbackElement, customMsg = null) {
             if (!navigator.clipboard) {
                 const textarea = document.createElement('textarea');
@@ -641,7 +831,7 @@
             copyTextToClipboard(CEDULA_FIJA, copyCedulaMsg, 'Cédula copiada');
         });
 
-        // Manejo del archivo
+        // --- Manejo del archivo ---
         fileInput.addEventListener('change', function(e) {
             const file = this.files[0];
             if (!file) {
@@ -688,7 +878,7 @@
             resetFileUpload();
         });
 
-        // Enviar a WhatsApp con imagen adjunta
+        // --- Enviar a WhatsApp ---
         document.getElementById('sendWhatsAppBtn').addEventListener('click', function() {
             const allValid = validateAll();
             if (!allValid) {
@@ -700,10 +890,12 @@
             const correo = correoInput.value.trim();
             const cedula = cedulaInput.value.trim();
             const telefono = telefonoInput.value.trim();
-            let bancoSeleccionado = 'Mercantil';
+            
+            // Obtener banco seleccionado desde los botones o radios
+            let banco = 'Mercantil';
             for (let radio of bancoRadios) {
                 if (radio.checked) {
-                    bancoSeleccionado = radio.value;
+                    banco = radio.value;
                     break;
                 }
             }
@@ -714,27 +906,19 @@
 📧 Correo: ${correo}
 🆔 Cédula: ${cedula}
 📞 Teléfono: ${telefono}
-🏦 Banco: ${bancoSeleccionado}
+🏦 Banco: ${banco}
 🔹 Teléfono pago: ${TELEFONO_FIJO}
-🔹 Cédula pago: ${CEDULA_FIJA}`;
+🔹 Cédula pago: ${CEDULA_FIJA}
+
+🔹 Enviado desde la app de Pago Móvil.`;
 
             const numeroWhatsApp = '584161379797';
             
-            // Si hay imagen seleccionada, usar el esquema de WhatsApp con imagen
             if (selectedFile && fileDataURL) {
-                // Para enviar imagen y texto juntos en WhatsApp, usamos el formato:
-                // Primero enviamos la imagen, luego el texto como mensaje separado
-                // Pero WhatsApp Web no permite enviar imagen + texto en un solo enlace.
-                // La mejor solución: abrir WhatsApp con la imagen y el texto en el mensaje
-                // usando el formato de compartir de WhatsApp.
-                
-                // Convertir la imagen a un blob URL para compartir
                 try {
-                    // Crear un objeto URL para la imagen
                     const blob = dataURLToBlob(fileDataURL);
                     const fileObj = new File([blob], selectedFile.name, { type: selectedFile.type });
                     
-                    // Usar la API de Web Share para compartir imagen + texto (funciona en móviles)
                     if (navigator.share) {
                         const shareData = {
                             title: 'Pago Móvil',
@@ -743,25 +927,52 @@
                         };
                         navigator.share(shareData).catch(err => {
                             console.log('Error al compartir:', err);
-                            // Fallback a WhatsApp
-                            fallbackWhatsApp(mensaje);
+                            enviarWhatsAppConImagenAlternativo(mensaje, fileDataURL);
                         });
                     } else {
-                        // Fallback: abrir WhatsApp con el texto y la imagen manual
-                        fallbackWhatsApp(mensaje);
+                        enviarWhatsAppConImagenAlternativo(mensaje, fileDataURL);
                     }
                 } catch (error) {
                     console.error('Error al procesar la imagen:', error);
-                    fallbackWhatsApp(mensaje);
+                    const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
+                    window.open(url, '_blank');
                 }
             } else {
-                // Sin imagen, solo texto
                 const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
                 window.open(url, '_blank');
             }
         });
 
-        // Función para convertir DataURL a Blob
+        function enviarWhatsAppConImagenAlternativo(mensaje, imageDataURL) {
+            try {
+                const blob = dataURLToBlob(imageDataURL);
+                const fileObj = new File([blob], 'captura_pago.jpg', { type: 'image/jpeg' });
+                
+                if (navigator.share) {
+                    const shareData = {
+                        title: 'Pago Móvil',
+                        text: mensaje,
+                        files: [fileObj]
+                    };
+                    navigator.share(shareData).catch(err => {
+                        console.log('Error en segundo intento:', err);
+                        const numeroWhatsApp = '584161379797';
+                        const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
+                        window.open(url, '_blank');
+                    });
+                } else {
+                    const numeroWhatsApp = '584161379797';
+                    const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
+                    window.open(url, '_blank');
+                }
+            } catch (error) {
+                console.error('Error en método alternativo:', error);
+                const numeroWhatsApp = '584161379797';
+                const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
+                window.open(url, '_blank');
+            }
+        }
+
         function dataURLToBlob(dataURL) {
             const parts = dataURL.split(',');
             const mime = parts[0].match(/:(.*?);/)[1];
@@ -772,13 +983,6 @@
                 u8arr[n] = bstr.charCodeAt(n);
             }
             return new Blob([u8arr], { type: mime });
-        }
-
-        // Fallback para WhatsApp
-        function fallbackWhatsApp(mensaje) {
-            const numeroWhatsApp = '584161379797';
-            const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
         }
 
         setTimeout(validateAll, 50);
