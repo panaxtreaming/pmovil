@@ -382,7 +382,6 @@
             color: #25d366;
             margin-right: 6px;
         }
-        /* Botones de banco elegibles - estilo mejorado */
         .banco-selector-buttons {
             display: flex;
             gap: 8px;
@@ -468,34 +467,96 @@
             border-bottom: 1px solid #2a3a2a;
             padding-bottom: 8px;
         }
-        .bancos-display {
-            display: flex;
+
+        /* Estilos del Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
             justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 6px 0 10px;
-            padding: 6px;
-            background: #111;
-            border-radius: 30px;
-            border: 1px solid #2a3a2a;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
         }
-        .bancos-display span {
-            color: #aaa;
-            font-size: clamp(0.7rem, 2vw, 0.8rem);
-            font-weight: 500;
-            padding: 4px 10px;
-            border-radius: 20px;
+        .modal-overlay.show {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal-content {
             background: #1a1a1a;
-            border: 1px solid #333;
+            border: 2px solid #25d366;
+            border-radius: 28px;
+            padding: 32px 28px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(37, 211, 102, 0.3);
         }
-        .bancos-display span i {
+        .modal-content .modal-icon {
+            font-size: 3.5rem;
             color: #25d366;
-            margin-right: 4px;
+            margin-bottom: 16px;
         }
-        .bancos-display span.active-banco {
+        .modal-content .modal-title {
+            color: #f0f0f0;
+            font-size: clamp(1.1rem, 3.5vw, 1.4rem);
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .modal-content .modal-text {
+            color: #aaa;
+            font-size: clamp(0.9rem, 2.8vw, 1rem);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .modal-content .modal-text strong {
             color: #25d366;
-            border-color: #25d366;
-            background: #1f2a1f;
+        }
+        .modal-content .modal-btn {
+            background: #25d366;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 32px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0 6px;
+        }
+        .modal-content .modal-btn:hover {
+            background: #2bdf6e;
+            transform: scale(1.02);
+        }
+        .modal-content .modal-btn-secondary {
+            background: #333;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 12px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0 6px;
+        }
+        .modal-content .modal-btn-secondary:hover {
+            background: #444;
+            color: #f0f0f0;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
     </style>
 </head>
@@ -519,12 +580,10 @@
                 <i class="fas fa-copy" style="margin-right: 8px;"></i>COPIA Y PEGA EN TU BANCO LOS DATOS PARA HACER TU PAGO MÓVIL
             </div>
             
-            <!-- Selector de Banco - SOLO ELIGE A DONDE PAGARAS -->
             <div class="banco-selector-title">
                 <i class="fas fa-hand-pointer"></i> ELIGE A DONDE PAGARÁS
             </div>
             
-            <!-- Botones de banco elegibles -->
             <div class="banco-selector-buttons" id="bancoSelectorButtons">
                 <button class="banco-btn selected" data-banco="Mercantil">
                     <i class="fas fa-building"></i> Mercantil
@@ -581,37 +640,31 @@
                 <i class="fas fa-user-edit" style="margin-right: 8px;"></i>COMPLETA TUS DATOS PARA PROCESAR TU SOLICITUD
             </div>
             
-            <!-- Nombre y Apellido -->
             <div class="form-group" style="margin-bottom: 10px;">
                 <label for="nombre"><i class="fas fa-user"></i> Nombre y Apellido</label>
                 <input type="text" id="nombre" placeholder="Ej: María Pérez" autocomplete="name">
                 <div class="error-msg" id="nombreError"><i class="fas fa-exclamation-circle"></i> Solo letras y espacios</div>
             </div>
 
-            <!-- Cédula -->
             <div class="form-group" style="margin-bottom: 10px;">
                 <label for="cedula"><i class="fas fa-id-card"></i> Cédula de Identidad</label>
                 <input type="text" id="cedula" placeholder="Solo números" inputmode="numeric">
                 <div class="error-msg" id="cedulaError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
             </div>
 
-            <!-- Teléfono -->
             <div class="form-group" style="margin-bottom: 10px;">
                 <label for="telefono"><i class="fas fa-phone"></i> Número de teléfono</label>
                 <input type="tel" id="telefono" placeholder="0412 075 4787" inputmode="numeric">
                 <div class="error-msg" id="telefonoError"><i class="fas fa-exclamation-circle"></i> Solo números</div>
             </div>
 
-            <!-- Correo -->
             <div class="form-group" style="margin-bottom: 6px;">
                 <label for="correo"><i class="fas fa-envelope"></i> Correo electrónico</label>
                 <input type="email" id="correo" placeholder="ejemplo@correo.com" autocomplete="email">
                 <div class="error-msg" id="correoError"><i class="fas fa-exclamation-circle"></i> Formato de correo inválido</div>
             </div>
 
-            <!-- Banco (selección) - oculto pero sincronizado con los botones -->
             <div class="form-group" style="margin-bottom: 0; display: none;">
-                <label><i class="fas fa-university"></i> Selecciona tu banco</label>
                 <div class="banco-grid" id="bancoGroup">
                     <label class="banco-option" data-banco="mercantil">
                         <input type="radio" name="banco" value="Mercantil" checked> <i class="fas fa-building"></i> Mercantil
@@ -626,10 +679,33 @@
             </div>
         </div>
 
-        <!-- Botón enviar -->
         <button class="btn-primary" id="sendWhatsAppBtn">
             <i class="fab fa-whatsapp"></i> Enviar captura a WhatsApp
         </button>
+    </div>
+</div>
+
+<!-- Modal emergente -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="modal-title">⚠️ ESTIMADO USUARIO</div>
+        <div class="modal-text">
+            <strong>RECUERDA ENVIAR TAMBIÉN EL CAPTURE DE TU PAGO</strong>
+            <br><br>
+            Los datos se han copiado al portapapeles. 
+            <br>No olvides adjuntar la imagen del comprobante.
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn" id="modalConfirmBtn">
+                <i class="fas fa-check"></i> Entendido, enviar
+            </button>
+            <button class="modal-btn-secondary" id="modalCancelBtn">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+        </div>
     </div>
 </div>
 
@@ -645,9 +721,7 @@
         const cedulaError = document.getElementById('cedulaError');
         const telefonoError = document.getElementById('telefonoError');
 
-        // Botones de banco elegibles
         const bancoButtons = document.querySelectorAll('.banco-btn');
-        // Radio buttons ocultos para sincronizar
         const bancoRadios = document.querySelectorAll('input[name="banco"]');
         const bancoOptions = document.querySelectorAll('.banco-option');
 
@@ -665,6 +739,11 @@
         const previewImage = document.getElementById('previewImage');
         const fileError = document.getElementById('fileError');
 
+        // Modal
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+
         const TELEFONO_FIJO = '04120754787';
         const CEDULA_FIJA = '13967475';
         let selectedFile = null;
@@ -673,17 +752,13 @@
         let validFields = { nombre: false, correo: false, cedula: false, telefono: false };
         let bancoSeleccionado = 'Mercantil';
 
-        // --- Sincronizar botones de banco con radios ocultos ---
+        // --- Sincronizar botones de banco ---
         bancoButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const banco = this.dataset.banco;
                 bancoSeleccionado = banco;
-                
-                // Actualizar estilo de botones
                 bancoButtons.forEach(b => b.classList.remove('selected'));
                 this.classList.add('selected');
-                
-                // Sincronizar radio buttons ocultos
                 bancoRadios.forEach(radio => {
                     if (radio.value === banco) {
                         radio.checked = true;
@@ -755,7 +830,6 @@
         cedulaInput.addEventListener('input', validateAll);
         telefonoInput.addEventListener('input', validateAll);
 
-        // --- Sincronizar banco con radios existentes ---
         bancoOptions.forEach(opt => {
             opt.addEventListener('click', function(e) {
                 const radio = this.querySelector('input[type="radio"]');
@@ -763,7 +837,6 @@
                     radio.checked = true;
                     bancoOptions.forEach(b => b.classList.remove('selected'));
                     this.classList.add('selected');
-                    // Sincronizar botones
                     const valor = radio.value;
                     bancoButtons.forEach(btn => {
                         btn.classList.toggle('selected', btn.dataset.banco === valor);
@@ -773,7 +846,6 @@
             });
         });
 
-        // Inicializar: marcar Mercantil
         const firstRadio = document.querySelector('input[name="banco"][value="Mercantil"]');
         if (firstRadio) {
             firstRadio.checked = true;
@@ -878,20 +950,13 @@
             resetFileUpload();
         });
 
-        // --- Enviar a WhatsApp ---
-        document.getElementById('sendWhatsAppBtn').addEventListener('click', function() {
-            const allValid = validateAll();
-            if (!allValid) {
-                alert('⚠️ Por favor, completa todos los campos correctamente antes de enviar.');
-                return;
-            }
-
+        // --- Función para enviar a WhatsApp ---
+        function enviarWhatsApp() {
             const nombre = nombreInput.value.trim();
             const correo = correoInput.value.trim();
             const cedula = cedulaInput.value.trim();
             const telefono = telefonoInput.value.trim();
             
-            // Obtener banco seleccionado desde los botones o radios
             let banco = 'Mercantil';
             for (let radio of bancoRadios) {
                 if (radio.checked) {
@@ -927,10 +992,12 @@
                         };
                         navigator.share(shareData).catch(err => {
                             console.log('Error al compartir:', err);
-                            enviarWhatsAppConImagenAlternativo(mensaje, fileDataURL);
+                            const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
+                            window.open(url, '_blank');
                         });
                     } else {
-                        enviarWhatsAppConImagenAlternativo(mensaje, fileDataURL);
+                        const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
+                        window.open(url, '_blank');
                     }
                 } catch (error) {
                     console.error('Error al procesar la imagen:', error);
@@ -938,36 +1005,6 @@
                     window.open(url, '_blank');
                 }
             } else {
-                const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje)}`;
-                window.open(url, '_blank');
-            }
-        });
-
-        function enviarWhatsAppConImagenAlternativo(mensaje, imageDataURL) {
-            try {
-                const blob = dataURLToBlob(imageDataURL);
-                const fileObj = new File([blob], 'captura_pago.jpg', { type: 'image/jpeg' });
-                
-                if (navigator.share) {
-                    const shareData = {
-                        title: 'Pago Móvil',
-                        text: mensaje,
-                        files: [fileObj]
-                    };
-                    navigator.share(shareData).catch(err => {
-                        console.log('Error en segundo intento:', err);
-                        const numeroWhatsApp = '584161379797';
-                        const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
-                        window.open(url, '_blank');
-                    });
-                } else {
-                    const numeroWhatsApp = '584161379797';
-                    const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
-                    window.open(url, '_blank');
-                }
-            } catch (error) {
-                console.error('Error en método alternativo:', error);
-                const numeroWhatsApp = '584161379797';
                 const url = `https://api.whatsapp.com/send?phone=${numeroWhatsApp}&text=${encodeURIComponent(mensaje + '\n\n📸 Recuerda adjuntar la captura de pago.')}`;
                 window.open(url, '_blank');
             }
@@ -984,6 +1021,35 @@
             }
             return new Blob([u8arr], { type: mime });
         }
+
+        // --- Botón principal - muestra el modal ---
+        document.getElementById('sendWhatsAppBtn').addEventListener('click', function() {
+            const allValid = validateAll();
+            if (!allValid) {
+                alert('⚠️ Por favor, completa todos los campos correctamente antes de enviar.');
+                return;
+            }
+            // Mostrar modal
+            modalOverlay.classList.add('show');
+        });
+
+        // --- Modal: Confirmar envío ---
+        modalConfirmBtn.addEventListener('click', function() {
+            modalOverlay.classList.remove('show');
+            enviarWhatsApp();
+        });
+
+        // --- Modal: Cancelar ---
+        modalCancelBtn.addEventListener('click', function() {
+            modalOverlay.classList.remove('show');
+        });
+
+        // --- Cerrar modal al hacer clic fuera ---
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('show');
+            }
+        });
 
         setTimeout(validateAll, 50);
         mensajeCopiar.innerHTML = '💬 copiado, pegue en su banco';
